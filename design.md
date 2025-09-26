@@ -5,7 +5,7 @@
 - Vectorworks の Python/VectorScript ドキュメントをローカルで横断検索し、LLM から即参照できるようにする
 - MCP (Model Context Protocol) ツール `vw.search` / `vw.answer` / `vw.get` を提供
 - 簡易 Web UI（FastAPI 内）で検索・出典確認をブラウザから可能にする
-- 後で pgvector/Qdrant・オンライン常時運用へ拡張しやすい構成
+  
 
 ## 構成
 
@@ -47,4 +47,11 @@ docker compose up --build
 # MCP: ws://localhost:8765
 # VS Code 追加:
 code --add-mcp '{"name":"vw_docs_local","url":"ws://localhost:8765"}'
+```
+
+## データ取得（GitHub: vectorworks org 全件）
+
+```sh
+docker compose run --rm -e GITHUB_TOKEN="$GITHUB_TOKEN" app bash scripts/fetch_github_vectorworks.sh
+# data/github/vectorworks/ 以下に各リポジトリを配置
 ```

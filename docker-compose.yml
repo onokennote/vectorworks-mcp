@@ -1,27 +1,9 @@
 version: '3.9'
 services:
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: vw
-      POSTGRES_USER: vw
-      POSTGRES_PASSWORD: vw
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   app:
     build: .
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8001:8000"
       - "8765:8765"
     volumes:
       - ./data:/app/data
@@ -33,13 +15,4 @@ services:
       - API_PORT=8000
       - MCP_HOST=0.0.0.0
       - MCP_PORT=8765
-      # For future DB usage (not required by MVP)
-      - PGHOST=db
-      - PGPORT=5432
-      - PGDATABASE=vw
-      - PGUSER=vw
-      - PGPASSWORD=vw
     command: ["python", "-m", "app.main"]
-
-volumes:
-  pgdata:

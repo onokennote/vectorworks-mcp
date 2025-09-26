@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -79,8 +80,27 @@ def ensure_index(embedder: Embedder) -> Tuple[faiss.Index, List[dict]]:
     return load_index(index_paths)
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(description="Build or rebuild FAISS index from data/")
+    parser.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="Force rebuild index from scratch (ignores existing index files)",
+    )
+    args = parser.parse_args()
+
     emb = Embedder()
-    idx, meta = ensure_index(emb)
+    data_dir = Path(settings.data_dir)
+    index_paths = IndexPaths.from_settings()
+
+    if args.rebuild:
+        index_paths.base.mkdir(parents=True, exist_ok=True)
+        idx, meta = build_index(data_dir, index_paths, emb)
+    else:
+        idx, meta = ensure_index(emb)
+
     print(f"Indexed {len(meta)} chunks → {settings.index_dir}/{settings.index_file}")
 
+
+if __name__ == "__main__":
+    main()
