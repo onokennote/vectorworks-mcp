@@ -6,6 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # System deps for faiss/numpy
+RUN apt-get update && apt-get install -y dos2unix
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     g++ \
