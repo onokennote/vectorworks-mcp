@@ -157,6 +157,7 @@ function connect() {
 
   ws.on('message', (data) => {
     // Forward WebSocket messages to stdout (for MCP client)
+    console.error('[MCP Bridge] Received WebSocket message:', data.toString());
     console.log(data.toString());
   });
 
@@ -204,6 +205,7 @@ rl.on('line', (line) => {
       };
 
       if (ws && ws.readyState === WebSocket.OPEN) {
+        console.error('[MCP Bridge] Sending WebSocket request:', JSON.stringify(wsRequest));
         ws.send(JSON.stringify(wsRequest));
       } else {
         messageQueue.push(JSON.stringify(wsRequest));
