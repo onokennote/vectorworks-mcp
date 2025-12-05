@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euo
+# Note: pipefail option removed for compatibility
 
 # Clone/update selected Vectorworks repos into:
 #   ${DATA_DIR:-data}/github/vectorworks/<repo>

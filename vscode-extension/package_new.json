@@ -1,0 +1,48 @@
+{
+  "name": "vectorworks-search",
+  "displayName": "Vectorworks Search",
+  "description": "Quick search for Vectorworks documentation and Copilot integration",
+  "version": "1.0.0",
+  "publisher": "flowworks",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["*"],
+  "main": "./extension_new.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vectorworks.search",
+        "title": "Vectorworks: ドキュメント検索"
+      },
+      {
+        "command": "vectorworks.copilot",
+        "title": "Vectorworks: Copilot質問"
+      },
+      {
+        "command": "vectorworks.mcpCopilot",
+        "title": "Vectorworks: 詳細Copilot質問"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "vectorworks.search",
+          "when": "editorTextFocus",
+          "group": "vectorworks@1"
+        },
+        {
+          "command": "vectorworks.copilot",
+          "when": "editorTextFocus",
+          "group": "vectorworks@2"
+        },
+        {
+          "command": "vectorworks.mcpCopilot",
+          "when": "editorTextFocus",
+          "group": "vectorworks@3"
+        }
+      ]
+    }
+  }
+}

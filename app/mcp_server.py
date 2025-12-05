@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Dict
+from typing import Any, Awaitable, Callable, Dict  # noqa: errors
 
 import websockets
 
@@ -27,38 +27,55 @@ class McpServer:
         self.searcher = Searcher(index=index, meta=meta, embedder=emb)
 
     async def handler(self, websocket):
-        async for message in websocket:
-            try:
-                req = json.loads(message)
-                if not isinstance(req, dict):
-                    raise ValueError("Invalid JSON-RPC request")
-                method = req.get("method")
-                req_id = req.get("id")
-                params = req.get("params", {})
+        try:
+            async for message in websocket:
+                try:
+                    req = json.loads(message)
+                    if not isinstance(req, dict):
+                        raise ValueError("Invalid JSON-RPC request")
+                    method = req.get("method")
+                    req_id = req.get("id")
+                    params = req.get("params", {})
 
-                if method == "vw.search":
-                    q = params.get("query")
-                    k = int(params.get("k", 6))
-                    result = self.searcher.search(q, k=k)
-                elif method == "vw.answer":
-                    q = params.get("query")
-                    k = int(params.get("k", 6))
-                    result = self.searcher.answer(q, k=k)
-                elif method == "vw.get":
-                    doc_id = params.get("doc_id")
-                    chunk_id = int(params.get("chunk_id"))
-                    result = self.searcher.get(doc_id, chunk_id)
-                else:
-                    raise ValueError(f"Unknown method: {method}")
+                    if method == "vw.search":
+                        q = params.get("query")
+                        k = int(params.get("k", 6))
+                        result = self.searcher.search(q, k=k)
+                    elif method == "vw.answer":
+                        q = params.get("query")
+                        k = int(params.get("k", 6))
+                        result = self.searcher.answer(q, k=k)
+                    elif method == "vw.get":
+                        doc_id = params.get("doc_id")
+                        chunk_id = int(params.get("chunk_id"))
+                        result = self.searcher.get(doc_id, chunk_id)
+                    else:
+                        raise ValueError(f"Unknown method: {method}")
 
-                resp: Json = {"jsonrpc": "2.0", "id": req_id, "result": result}
-            except Exception as e:  # pragma: no cover - basic error surface
-                resp = {
-                    "jsonrpc": "2.0",
-                    "id": req.get("id") if isinstance(req, dict) else None,
-                    "error": {"code": -32000, "message": str(e)},
-                }
-            await websocket.send(json.dumps(resp, ensure_ascii=False))
+                    # Ensure result is JSON serializable
+                    if hasattr(result, "__iter__") and not isinstance(result, (str, dict)):
+                        result = list(result)
+
+                    resp: Json = {"jsonrpc": "2.0", "id": req_id, "result": result}
+                except Exception as e:
+                    resp = {
+                        "jsonrpc": "2.0",
+                        "id": req.get("id") if isinstance(req, dict) else None,
+                        "error": {"code": -32000, "message": str(e)},
+                    }
+
+                try:
+                    await websocket.send(json.dumps(resp, ensure_ascii=False))
+                except Exception as send_error:
+                    print(f"Failed to send response: {send_error}")
+                    break
+
+        except websockets.exceptions.ConnectionClosed:
+            print("WebSocket connection closed normally")
+        except Exception as e:
+            print(f"WebSocket handler error: {e}")
+        finally:
+            print("WebSocket handler finished")
 
     async def run(self):
         async with websockets.serve(self.handler, self.host, self.port):
@@ -68,4 +85,3 @@ class McpServer:
 async def run_server():
     server = McpServer()
     await server.run()
-

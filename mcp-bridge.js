@@ -156,9 +156,39 @@ function connect() {
   });
 
   ws.on('message', (data) => {
-    // Forward WebSocket messages to stdout (for MCP client)
-    console.error('[MCP Bridge] Received WebSocket message:', data.toString());
-    console.log(data.toString());
+    try {
+      const response = JSON.parse(data.toString());
+      console.error('[MCP Bridge] Received WebSocket message:', response);
+      
+      // Transform WebSocket response to MCP tool response format
+      if (response.result) {
+        const mcpResponse = {
+          jsonrpc: '2.0',
+          id: response.id,
+          result: {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(response.result, null, 2)
+              }
+            ]
+          }
+        };
+        console.log(JSON.stringify(mcpResponse));
+      } else if (response.error) {
+        const mcpError = {
+          jsonrpc: '2.0',
+          id: response.id,
+          error: {
+            code: response.error.code || -32000,
+            message: response.error.message || 'Unknown error'
+          }
+        };
+        console.log(JSON.stringify(mcpError));
+      }
+    } catch (error) {
+      console.error('[MCP Bridge] Error parsing WebSocket response:', error.message);
+    }
   });
 
   ws.on('error', (error) => {

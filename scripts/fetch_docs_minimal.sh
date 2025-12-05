@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euo
+# Note: pipefail option removed for compatibility
 
 # Minimal, ingestion-ready docs fetcher (md/html only)
 

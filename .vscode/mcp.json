@@ -2,9 +2,8 @@
   "servers": {
     "vectorworks-docs": {
       "command": "node",
-      "args": [
-        "D:\\GitHub\\vectorworks-mcp\\mcp-bridge.js"
-      ]
+      "args": ["mcp-bridge.js"],
+      "cwd": "${workspaceFolder}"
     }
   }
 }

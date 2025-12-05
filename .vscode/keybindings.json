@@ -1,0 +1,7 @@
+[
+  {
+    "key": "ctrl+shift+v",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Vectorworks Search"
+  }
+]
